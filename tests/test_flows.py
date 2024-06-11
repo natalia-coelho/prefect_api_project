@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from src.flows import rick_and_morty_flow
+from flows import rick_and_morty_flow
 
 def test_rick_and_morty_flow():
     with patch('src.flows.fetch_characters') as mock_fetch_characters, \
