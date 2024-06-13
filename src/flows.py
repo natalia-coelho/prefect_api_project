@@ -1,5 +1,6 @@
 from asyncio import sleep
 from random import randrange
+import random
 from requests import Timeout
 from prefect import flow, task, get_run_logger
 from sqlalchemy import engine_from_config
@@ -11,8 +12,11 @@ logging.basicConfig(level=logging.INFO)
 
 @task(log_prints=True, retries=5, retry_delay_seconds=5, timeout_seconds=5)
 def fetch_characters():
-    time.sleep(3) # simulating a timeout at the endpoint
-    return rick_and_morty.get_characters()
+    try: 
+        time.sleep(random.randint(1, 100)) # simulating random timeouts 
+        return rick_and_morty.get_characters()
+    except Timeout:
+        raise FAIL("A tarefa excedeu o limite do timeout! ⏳")
     
 @task(retries=5, retry_delay_seconds=10, timeout_seconds=5)
 def fetch_locations():
