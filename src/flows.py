@@ -12,11 +12,8 @@ logging.basicConfig(level=logging.INFO)
 
 @task(log_prints=True, retries=5, retry_delay_seconds=5, timeout_seconds=5)
 def fetch_characters():
-    try: 
-        time.sleep(random.randint(1, 100)) # simulating random timeouts 
-        return rick_and_morty.get_characters()
-    except Timeout:
-        raise FAIL("A tarefa excedeu o limite do timeout! ⏳")
+    time.sleep(random.randint(1, 100)) # simulating random timeouts 
+    return rick_and_morty.get_characters()
     
 @task(retries=5, retry_delay_seconds=10, timeout_seconds=5)
 def fetch_locations():
