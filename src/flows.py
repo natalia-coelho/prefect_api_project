@@ -35,13 +35,22 @@ def list_character_names(characters):
     for character in characters['results']:
         print(f"{character['name']}")
         
+@task(log_prints=True)
+def list_all_episodes(episodes):
+    for episode in episodes['results']:
+        print(f"{episode['name']}")
+        
 @flow(timeout_seconds=1)
 def rick_and_morty_flow():
     characters = fetch_characters()
     locations = fetch_locations()
+    episodes = fetch_episodes()
     print(f"Quantidade de personagens encontrados 👥: {len(characters['results'])}")
     print(f"Localizações encontradas 🗺️: {len(locations['results'])}")
     print("Listando todos os personagens: ")
-    print(f"{list_character_names(characters)}")
+    list_character_names(characters)
+    
+    print("Listando todos os episódios: ")
+    list_all_episodes(episodes)
     
     
