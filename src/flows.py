@@ -1,18 +1,19 @@
 from asyncio import sleep
 from random import randrange
-from sre_constants import FAILURE
-from prefect import flow, task
+from requests import Timeout
+from prefect import flow, task, get_run_logger
+from sqlalchemy import engine_from_config
+import time
 import rick_and_morty
 import logging
 
-from sqlalchemy import engine_from_config
+logging.basicConfig(level=logging.INFO)
 
-logging.basicConfig(level=logging.ERROR)
-
-@task(retries=5, retry_delay_seconds=10, timeout_seconds=5)
+@task(log_prints=True, retries=5, retry_delay_seconds=5, timeout_seconds=5)
 def fetch_characters():
+    time.sleep(3) # simulating a timeout at the endpoint
     return rick_and_morty.get_characters()
-
+    
 @task(retries=5, retry_delay_seconds=10, timeout_seconds=5)
 def fetch_locations():
     return rick_and_morty.get_locations()
@@ -21,16 +22,22 @@ def fetch_locations():
 def fetch_character_by_id(character_id):
     return rick_and_morty.get_character_by_id(character_id)
     
-
 @task(retries=5, retry_delay_seconds=10, timeout_seconds=5)
 def fetch_episodes():
     return rick_and_morty.get_episodes()
 
-@flow
+@task(log_prints=True)
+def list_character_names(characters):
+    for character in characters['results']:
+        print(f"{character['name']}")
+        
+@flow(timeout_seconds=1)
 def rick_and_morty_flow():
     characters = fetch_characters()
     locations = fetch_locations()
-    character = fetch_character_by_id(1)
     print(f"Quantidade de personagens encontrados 👥: {len(characters['results'])}")
     print(f"Localizações encontradas 🗺️: {len(locations['results'])}")
-    print(f"Nome do personagem com ID 1: {character['name']}")
+    print("Listando todos os personagens: ")
+    print(f"{list_character_names(characters)}")
+    
+    
